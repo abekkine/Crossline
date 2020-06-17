@@ -53,9 +53,9 @@ void sql_add_completion (crossline_completions_t *pCompletion, const char *prefi
 					wcolor = (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_CYAN); 
 				}
 				hcolor = i%2 ? CROSSLINE_FGCOLOR_WHITE : CROSSLINE_FGCOLOR_CYAN;
-				CLINE.crossline_completion_add_color (pCompletion, match[i], wcolor, help[i], hcolor);
+				CLINE.AddCompletionWithColor (pCompletion, match[i], wcolor, help[i], hcolor);
 			} else {
-				CLINE.crossline_completion_add_color (pCompletion, match[i], (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_MAGENTA), NULL, (crossline_color_e) 0);
+				CLINE.AddCompletionWithColor (pCompletion, match[i], (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_MAGENTA), NULL, (crossline_color_e) 0);
 			}
 		}
 	}
@@ -122,22 +122,22 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 	switch (cmd) {
 	case CMD_INSERT: // INSERT INTO <table> SET column1=value1,column2=value2,...
 		if ((1 == num) && (' ' == last_ch)) {
-			CLINE.crossline_completion_add (pCompletion, "INTO", NULL);
+			CLINE.AddCompletion (pCompletion, "INTO", NULL);
 		} else if ((2 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+			CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 		} else if ((3 == num) && (' ' == last_ch)) {
-			CLINE.crossline_completion_add (pCompletion, "SET", NULL);
+			CLINE.AddCompletion (pCompletion, "SET", NULL);
 		} else if ((4 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "column1=value1,column2=value2,...", col_color);
+			CLINE.SetHintColor (pCompletion, "column1=value1,column2=value2,...", col_color);
 		}
 		break;
 	case CMD_SELECT: // SELECT < * | column1,columnm2,...> FROM <table> [WHERE] [ORDER BY] [LIMIT] [OFFSET]
 		if ((1 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "* | column1,columnm2,...", col_color);
+			CLINE.SetHintColor (pCompletion, "* | column1,columnm2,...", col_color);
 		} else if ((2 == num) && (' ' == last_ch)) {
-			CLINE.crossline_completion_add (pCompletion, "FROM", NULL);
+			CLINE.AddCompletion (pCompletion, "FROM", NULL);
 		} else if ((3 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+			CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 		} else if ((4 == num) && (' ' == last_ch)) {
 			sql_add_completion (pCompletion, "", sql_caluse, NULL);
 		} else if ((num > 4) && (' ' != last_ch)) {
@@ -146,11 +146,11 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 		break;
 	case CMD_UPDATE: // UPDATE <table> SET column1=value1,column2=value2 [WHERE] [ORDER BY] [LIMIT] [OFFSET]
 		if ((1 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+			CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 		} else if ((2 == num) && (' ' == last_ch)) {
-			CLINE.crossline_completion_add (pCompletion, "SET", NULL);
+			CLINE.AddCompletion (pCompletion, "SET", NULL);
 		} else if ((3 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "column1=value1,column2=value2,...", col_color);
+			CLINE.SetHintColor (pCompletion, "column1=value1,column2=value2,...", col_color);
 		} else if ((4 == num) && (' ' == last_ch)) {
 			sql_add_completion (pCompletion, "", sql_caluse, NULL);
 		} else if ((num > 4) && (' ' != last_ch)) {
@@ -159,9 +159,9 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 		break;
 	case CMD_DELETE: // DELETE FROM <table> [WHERE] [ORDER BY] [LIMIT] [OFFSET]
 		if ((1 == num) && (' ' == last_ch)) {
-			CLINE.crossline_completion_add (pCompletion, "FROM", NULL);
+			CLINE.AddCompletion (pCompletion, "FROM", NULL);
 		} else if ((2 == num) && (' ' == last_ch)) {
-			CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+			CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 		} else if ((3 == num) && (' ' == last_ch)) {
 			sql_add_completion (pCompletion, "", sql_caluse, NULL);
 		} else if ((num > 3) && (' ' != last_ch)) {
@@ -178,16 +178,16 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 				bUnique = 1;
 			}
 			if ((2 == num) && bUnique && (' ' == last_ch)) {
-				CLINE.crossline_completion_add (pCompletion, "INDEX", NULL);
+				CLINE.AddCompletion (pCompletion, "INDEX", NULL);
 			}
 			else if ((2+bUnique == num) && (' ' == last_ch)) {
-				CLINE.crossline_hints_set_color (pCompletion, "index name", idx_color);
+				CLINE.SetHintColor (pCompletion, "index name", idx_color);
 			} else if ((3+bUnique == num) && (' ' == last_ch)) {
-				CLINE.crossline_completion_add (pCompletion, "ON", NULL);
+				CLINE.AddCompletion (pCompletion, "ON", NULL);
 			} else if ((4+bUnique == num) && (' ' == last_ch)) {
-				CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+				CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 			} else if ((5+bUnique == num) && (' ' == last_ch)) {
-				CLINE.crossline_hints_set_color (pCompletion, "(column1,column2,...)", col_color);
+				CLINE.SetHintColor (pCompletion, "(column1,column2,...)", col_color);
 			}
 		}
 		break;
@@ -198,9 +198,9 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 			sql_add_completion (pCompletion, split[1], sql_drop, NULL);
 		} else if ((num == 2) && (' ' == last_ch)) {
 			if (!strcasecmp (split[1], "TABLE")) {
-				CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+				CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 			} else if (!strcasecmp (split[1], "INDEX")) {
-				CLINE.crossline_hints_set_color (pCompletion, "index name", idx_color);
+				CLINE.SetHintColor (pCompletion, "index name", idx_color);
 			}
 		}
 		break;
@@ -213,7 +213,7 @@ void sql_completion_hook (char const *buf, crossline_completions_t *pCompletion)
 		break;
 	case CMD_DESCRIBE: // describe <table>
 		if (' ' == last_ch) {
-			CLINE.crossline_hints_set_color (pCompletion, "table name", tbl_color);
+			CLINE.SetHintColor (pCompletion, "table name", tbl_color);
 		}
 		break;
 	case CMD_HELP:
@@ -232,19 +232,19 @@ int main ()
 {
 	char buf[256];
 
-	CLINE.crossline_completion_register (sql_completion_hook);
-	CLINE.crossline_history_load ("history.txt");
-	CLINE.crossline_prompt_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
+	CLINE.RegisterCompletionHook (sql_completion_hook);
+	CLINE.LoadHistory ("history.txt");
+	CLINE.PromptColor ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
 
-	while (NULL != CLINE.crossline_readline ("SQL> ", buf, sizeof(buf))) {
+	while (NULL != CLINE.ReadLine ("SQL> ", buf, sizeof(buf))) {
 		printf ("Read line: \"%s\"\n", buf);
 		if (!strcmp (buf, "history")) {
-			CLINE.crossline_history_show ();
+			CLINE.ShowHistory ();
 		} else if (!strcmp (buf, "exit")) {
 			break;
 		}
 	}
 
-	CLINE.crossline_history_save ("history.txt");
+	CLINE.SaveHistory ("history.txt");
 	return 0;
 }

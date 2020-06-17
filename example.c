@@ -30,7 +30,7 @@ static void completion_hook (char const *buf, crossline_completions_t *pCompleti
 
     for (i = 0; NULL != cmd[i]; ++i) {
         if (0 == strncmp(buf, cmd[i], strlen(buf))) {
-            CLINE.crossline_completion_add (pCompletion, cmd[i], NULL);
+            CLINE.AddCompletion (pCompletion, cmd[i], NULL);
         }
     }
 
@@ -40,13 +40,13 @@ int main ()
 {
     char buf[256];
     
-    CLINE.crossline_completion_register (completion_hook);
-    CLINE.crossline_history_load ("history.txt");
+    CLINE.RegisterCompletionHook (completion_hook);
+    CLINE.LoadHistory ("history.txt");
 
-    while (NULL != CLINE.crossline_readline ("Crossline> ", buf, sizeof(buf))) {
+    while (NULL != CLINE.ReadLine ("Crossline> ", buf, sizeof(buf))) {
         printf ("Read line: \"%s\"\n", buf);
     }    
 
-    CLINE.crossline_history_save ("history.txt");
+    CLINE.SaveHistory ("history.txt");
     return 0;
 }

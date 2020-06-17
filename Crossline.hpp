@@ -349,11 +349,11 @@ public:
         return crossline_readline_edit (buf, size, prompt, has_input, 0);
     }
 
-    char* crossline_readline (const char *prompt, char *buf, int size) {
+    char* ReadLine (const char *prompt, char *buf, int size) {
         return crossline_readline_internal (prompt, buf, size, 0);
     }
 
-    char* crossline_readline2 (const char *prompt, char *buf, int size) {
+    char* ReadLineWithText (const char *prompt, char *buf, int size) {
         return crossline_readline_internal (prompt, buf, size, 1);
     }
 
@@ -365,7 +365,7 @@ public:
 		}
 	}
 
-	void crossline_history_show (void) {
+	void ShowHistory (void) {
 		crossline_history_dump (stdout, 1, NULL, 0, isatty(STDIN_FILENO));
 	}
 
@@ -374,7 +374,7 @@ public:
 		s_history_id = 0;
 	}
 
-	int crossline_history_save (const char *filename) {
+	int SaveHistory (const char *filename) {
 		if (NULL == filename) {
 			return -1;
 		} else {
@@ -391,7 +391,7 @@ public:
 		return 0;
 	}
 
-	int crossline_history_load (const char* filename) {
+	int LoadHistory (const char* filename) {
 		int		len;
 		char	buf[CROSS_HISTORY_BUF_LEN];
 		FILE	*file;
@@ -412,12 +412,12 @@ public:
 	}
 
 	// Register completion callback.
-	void crossline_completion_register (crossline_completion_callback pCbFunc) {
+	void RegisterCompletionHook (crossline_completion_callback pCbFunc) {
 		s_completion_callback = pCbFunc;
 	}
 
 	// Add completion in callback. Word is must, help for word is optional.
-	void  crossline_completion_add_color (
+	void  AddCompletionWithColor (
 		crossline_completions_t *pCompletions, const char *word,
 		crossline_color_e wcolor, const char *help, crossline_color_e hcolor) {
 		if ((NULL != pCompletions) && (NULL != word) && (pCompletions->num < CROSS_COMPLET_MAX_LINE)) {
@@ -433,12 +433,12 @@ public:
 			pCompletions->num++;
 		}
 	}
-	void crossline_completion_add (crossline_completions_t *pCompletions, const char *word, const char *help) {
-		crossline_completion_add_color (pCompletions, word, CROSSLINE_COLOR_DEFAULT, help, CROSSLINE_COLOR_DEFAULT);
+	void AddCompletion (crossline_completions_t *pCompletions, const char *word, const char *help) {
+		AddCompletionWithColor (pCompletions, word, CROSSLINE_COLOR_DEFAULT, help, CROSSLINE_COLOR_DEFAULT);
 	}
 
 	// Set syntax hints in callback.
-	void  crossline_hints_set_color (crossline_completions_t *pCompletions, const char *hints, crossline_color_e color) {
+	void  SetHintColor (crossline_completions_t *pCompletions, const char *hints, crossline_color_e color) {
 		if ((NULL != pCompletions) && (NULL != hints)) {
 			strncpy (pCompletions->hints, hints, CROSS_COMPLET_HINT_LEN - 1);
 			pCompletions->hints[CROSS_COMPLET_HINT_LEN - 1] = '\0';
@@ -446,14 +446,14 @@ public:
 		}
 	}
 	void crossline_hints_set (crossline_completions_t *pCompletions, const char *hints) {
-		crossline_hints_set_color (pCompletions, hints, CROSSLINE_COLOR_DEFAULT);
+		SetHintColor (pCompletions, hints, CROSSLINE_COLOR_DEFAULT);
 	}
 
-	void crossline_paging_reset (void) {
+	void ResetPaging (void) {
 		s_paging_print_line = 0;
 	}
 
-	int crossline_paging_check (int line_len) {
+	int CheckPaging (int line_len) {
 		char *paging_hints = "*** Press <Space> or <Enter> to continue . . .";
 		int	i, ch, rows, cols, len = (int)strlen(paging_hints);
 
@@ -474,7 +474,7 @@ public:
 		return 0;
 	}
 
-	void  crossline_prompt_color_set (crossline_color_e color) {
+	void  PromptColor (crossline_color_e color) {
 		s_prompt_color	= color;
 	}
 
@@ -524,7 +524,7 @@ public:
 		SetConsoleCursorInfo (GetStdHandle(STD_OUTPUT_HANDLE), &inf);
 	}
 
-	void crossline_color_set (crossline_color_e color) {
+	void SetColor (crossline_color_e color) {
 		CONSOLE_SCREEN_BUFFER_INFO info;
 		static WORD dft_wAttributes = 0;
 		WORD wAttributes = 0;
@@ -615,7 +615,7 @@ public:
 		printf("\e[?25%c", bHide?'l':'h');
 	}
 
-	void crossline_color_set (crossline_color_e color) {
+	void SetColor (crossline_color_e color) {
 		printf ("\033[m");
 		if (CROSSLINE_FGCOLOR_DEFAULT != (color&CROSSLINE_FGCOLOR_MASK)) 
 			{ printf ("\033[%dm", 29 + (color&CROSSLINE_FGCOLOR_MASK) + ((color&CROSSLINE_FGCOLOR_BRIGHT)?60:0)); }
@@ -630,11 +630,11 @@ public:
 	void crossline_show_help (int show_search) {
 		int	i;
 		char **help = show_search ? s_search_help : s_crossline_help;
-		crossline_paging_reset ();
+		ResetPaging ();
 		printf (" \b\n");
 		for (i = 0; NULL != help[i]; ++i) {
 			printf ("%s\n", help[i]);
-			if (crossline_paging_check ((int)strlen(help[i])+1))
+			if (CheckPaging ((int)strlen(help[i])+1))
 				{ break; }
 		}
 	}
@@ -697,7 +697,7 @@ public:
 		int		id = 0, num=0;
 		char	*pat_list[CROSS_HIS_MATCH_PAT_NUM], *history;
 
-		crossline_paging_reset ();
+		ResetPaging ();
 		num = crossline_split_patterns (patterns, pat_list, CROSS_HIS_MATCH_PAT_NUM);
 		for (i = s_history_id; i < s_history_id + CROSS_HISTORY_MAX_LINE; ++i) {
 			history = s_history_buf[i % CROSS_HISTORY_MAX_LINE];
@@ -712,7 +712,7 @@ public:
 				if (print_id)	{ fprintf (file, "%4d  %s\n", ++id, history); }
 				else			{ fprintf (file, "%s\n", history); }
 				if (paging) {
-					if (crossline_paging_check ((int)strlen(history)+(print_id?7:1)))
+					if (CheckPaging ((int)strlen(history)+(print_id?7:1)))
 						{ break; }
 				}
 			}
@@ -752,7 +752,7 @@ public:
 	int crossline_show_completions (crossline_completions_t *pCompletions) {
 		int i, j, ret = 0, word_len = 0, with_help = 0, rows, cols, word_num;
 
-		crossline_paging_reset ();
+		ResetPaging ();
 		if (('\0' != pCompletions->hints[0]) || (pCompletions->num > 0)) {
 			printf (" \b\n");
 			ret = 1;
@@ -760,9 +760,9 @@ public:
 		// Print syntax hints.
 		if ('\0' != pCompletions->hints[0]) {
 			printf ("Please input: "); 
-			crossline_color_set (pCompletions->color_hints);
+			SetColor (pCompletions->color_hints);
 			printf ("%s", pCompletions->hints); 
-			crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+			SetColor (CROSSLINE_COLOR_DEFAULT);
 			printf ("\n");
 		}
 		if (0 == pCompletions->num)	{ return ret; }
@@ -774,15 +774,15 @@ public:
 		if (with_help) {
 			// Print words with help format.
 			for (i = 0; i < pCompletions->num; ++i) {
-				crossline_color_set (pCompletions->color_word[i]);
+				SetColor (pCompletions->color_word[i]);
 				printf ("%s", pCompletions->word[i]);
 				for (j = 0; j < 4+word_len-(int)strlen(pCompletions->word[i]); ++j)
 					{ printf (" "); }
-				crossline_color_set (pCompletions->color_help[i]);
+				SetColor (pCompletions->color_help[i]);
 				printf ("%s", pCompletions->help[i]);
-				crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+				SetColor (CROSSLINE_COLOR_DEFAULT);
 				printf ("\n");
-				if (crossline_paging_check((int)strlen(pCompletions->help[i])+4+word_len+1))
+				if (CheckPaging((int)strlen(pCompletions->help[i])+4+word_len+1))
 					{ break; }
 			}
 			return ret;
@@ -792,14 +792,14 @@ public:
 		crossline_screen_get (&rows, &cols);
 		word_num = (cols - 1 - word_len) / (word_len + 4) + 1;
 		for (i = 1; i <= pCompletions->num; ++i) {
-			crossline_color_set (pCompletions->color_word[i-1]);
+			SetColor (pCompletions->color_word[i-1]);
 			printf ("%s", pCompletions->word[i-1]);
-			crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+			SetColor (CROSSLINE_COLOR_DEFAULT);
 			for (j = 0; j < ((i%word_num)?4:0)+word_len-(int)strlen(pCompletions->word[i-1]); ++j)
 				{ printf (" "); }
 			if (0 == (i % word_num)) {
 				printf ("\n");
-				if (crossline_paging_check (word_len))
+				if (CheckPaging (word_len))
 					{ return ret; }
 			}
 		}
@@ -843,9 +843,9 @@ public:
 			} else {
 				pos_row = (*pCurPos + len) / cols;
 				crossline_cursor_move (-pos_row, 0);
-				crossline_color_set (s_prompt_color);
+				SetColor (s_prompt_color);
 				printf ("\r%s", prompt);
-				crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+				SetColor (CROSSLINE_COLOR_DEFAULT);
 				printf ("%s", buf);
 			}
 			if (!s_crossline_win && new_num>0 && !((new_num+len)%cols)) { printf("\n"); }
@@ -1318,7 +1318,7 @@ public:
 			case KEY_F2:	// Show history
 				if (in_his || (0 == s_history_id)) { break; }
 				printf (" \b\n");
-				crossline_history_show ();
+				ShowHistory ();
 				crossline_print (prompt, buf, &pos, &num, pos, num);
 				break;
 
