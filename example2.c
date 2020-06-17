@@ -26,7 +26,7 @@ gcc -Wall crossline.c example2.c -o example2
 	#define strncasecmp				_strnicmp
 #endif
 
-Crossline cline;
+#define CLINE Crossline::Instance()
 
 static void completion_hook (char const *buf, crossline_completions_t *pCompletion)
 {
@@ -56,7 +56,7 @@ static void completion_hook (char const *buf, crossline_completions_t *pCompleti
 				wcolor = (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_CYAN); 
 			}
 			hcolor = i%2 ? CROSSLINE_FGCOLOR_WHITE : CROSSLINE_FGCOLOR_CYAN;
-			cline.crossline_completion_add_color (pCompletion, cmd[i], wcolor, cmd_help[i], hcolor);
+			CLINE.crossline_completion_add_color (pCompletion, cmd[i], wcolor, cmd_help[i], hcolor);
 		}
 	}
 }
@@ -64,10 +64,10 @@ static void completion_hook (char const *buf, crossline_completions_t *pCompleti
 static void pagint_test ()
 {
 	int i;
-	cline.crossline_paging_reset ();
+	CLINE.crossline_paging_reset ();
 	for (i = 0; i < 256; ++i) {
 		printf ("Paging test: %3d\n", i);
-		if (cline.crossline_paging_check (sizeof("paging test: ") + 3)) {
+		if (CLINE.crossline_paging_check (sizeof("paging test: ") + 3)) {
 			break;
 		}
 	}
@@ -78,110 +78,110 @@ static void color_test ()
 	printf ("\n*** Color test *** \n");
 	printf ("  Default Foregroud and Backgroud\n\n");
 
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
 	printf ("  Foregroud: Black");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_UNDERLINE | CROSSLINE_FGCOLOR_RED));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_UNDERLINE | CROSSLINE_FGCOLOR_RED));
 	printf ("  Foregroud: Red Underline\n");
-	cline.crossline_color_set (CROSSLINE_FGCOLOR_GREEN);
+	CLINE.crossline_color_set (CROSSLINE_FGCOLOR_GREEN);
 	printf ("  Foregroud: Green\n");
-	cline.crossline_color_set (CROSSLINE_FGCOLOR_YELLOW);
+	CLINE.crossline_color_set (CROSSLINE_FGCOLOR_YELLOW);
 	printf ("  Foregroud: Yellow\n");
-	cline.crossline_color_set (CROSSLINE_FGCOLOR_BLUE);
+	CLINE.crossline_color_set (CROSSLINE_FGCOLOR_BLUE);
 	printf ("  Foregroud: Blue\n");
-	cline.crossline_color_set (CROSSLINE_FGCOLOR_MAGENTA);
+	CLINE.crossline_color_set (CROSSLINE_FGCOLOR_MAGENTA);
 	printf ("  Foregroud: Magenta\n");
-	cline.crossline_color_set (CROSSLINE_FGCOLOR_CYAN);
+	CLINE.crossline_color_set (CROSSLINE_FGCOLOR_CYAN);
 	printf ("  Foregroud: Cyan\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
 	printf ("  Foregroud: White");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n\n");	
 
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
 	printf ("  Foregroud: Bright Black");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_RED));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_RED));
 	printf ("  Foregroud: Bright Red\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
 	printf ("  Foregroud: Bright Green\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_YELLOW));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_YELLOW));
 	printf ("  Foregroud: Bright Yellow\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLUE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLUE));
 	printf ("  Foregroud: Bright Blue\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_MAGENTA));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_MAGENTA));
 	printf ("  Foregroud: Bright Magenta\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_UNDERLINE | CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_CYAN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_UNDERLINE | CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_CYAN));
 	printf ("  Foregroud: Bright Cyan Underline\n");
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
 	printf ("  Foregroud: Bright White\n\n");
 
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLACK));
 	printf ("  Backgroud: Black   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_RED));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_RED));
 	printf ("  Backgroud: Red     ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_GREEN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_GREEN));
 	printf ("  Backgroud: Green   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_YELLOW));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_YELLOW));
 	printf ("  Backgroud: Yellow  ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLUE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BLUE));
 	printf ("  Backgroud: Blue    ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_MAGENTA));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_MAGENTA));
 	printf ("  Backgroud: Magenta ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_CYAN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_CYAN));
 	printf ("  Backgroud: Cyan    ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_WHITE));
 	printf ("  Backgroud: White   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n\n");	
 
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_BLACK));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_BLACK));
 	printf ("  Backgroud: Bright Black   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_RED));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_RED));
 	printf ("  Backgroud: Bright Red     ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_GREEN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_GREEN));
 	printf ("  Backgroud: Bright Green   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_YELLOW));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_YELLOW));
 	printf ("  Backgroud: Bright Yellow  ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_BLUE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_BLUE));
 	printf ("  Backgroud: Bright Blue    ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_MAGENTA));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_WHITE | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_MAGENTA));
 	printf ("  Backgroud: Bright Magenta ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_CYAN));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_CYAN));
 	printf ("  Backgroud: Bright Cyan    ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
-	cline.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_WHITE));
+	CLINE.crossline_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_BLACK | CROSSLINE_BGCOLOR_BRIGHT | CROSSLINE_BGCOLOR_WHITE));
 	printf ("  Backgroud: Bright White   ");
-	cline.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
+	CLINE.crossline_color_set (CROSSLINE_COLOR_DEFAULT);
 	printf ("\n");	
 }
 
@@ -189,20 +189,20 @@ int main ()
 {
 	char buf[1024]="select ";
 
-	cline.crossline_completion_register (completion_hook);
-	cline.crossline_history_load ("history.txt");
-	cline.crossline_prompt_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
+	CLINE.crossline_completion_register (completion_hook);
+	CLINE.crossline_history_load ("history.txt");
+	CLINE.crossline_prompt_color_set ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
 
 	// Readline with initail text input
-	if (NULL != cline.crossline_readline2 ("Crossline> ", buf, sizeof(buf))) {
+	if (NULL != CLINE.crossline_readline2 ("Crossline> ", buf, sizeof(buf))) {
 		printf ("Read line: \"%s\"\n", buf);
 	}
 	// Readline loop
-	while (NULL != cline.crossline_readline ("Crossline> ", buf, sizeof(buf))) {
+	while (NULL != CLINE.crossline_readline ("Crossline> ", buf, sizeof(buf))) {
 		printf ("Read line: \"%s\"\n", buf);
 
 		if (!strcmp (buf, "history")) {
-			cline.crossline_history_show ();
+			CLINE.crossline_history_show ();
 		}
 
 		if (!strcmp (buf, "paging")) {
@@ -213,6 +213,6 @@ int main ()
 		}
 	}
 
-	cline.crossline_history_save ("history.txt");
+	CLINE.crossline_history_save ("history.txt");
 	return 0;
 }

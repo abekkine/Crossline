@@ -288,7 +288,30 @@ static char* s_search_help[] = {
     NULL
 };
 
+// DEBUG static void crossline_winchg_event (int arg);
+static void signal_winchg_handler (int arg);
+
 class Crossline {
+public:
+    static Crossline& Instance() {
+        static Crossline instance;
+        return instance;
+    }
+    void WindowsChangeEvent() {
+        // TODO : add mutex here?
+        s_got_resize = 1;
+    }
+private:
+    Crossline() {
+		strncpy(s_word_delimiter, CROSS_DFT_DELIMITER, 64);
+		s_history_id = 0; // Increase always, wrap until UINT_MAX
+		s_completion_callback = NULL;
+		s_paging_print_line = 0; // For paging control
+		s_got_resize 		= 0; // Window size changed
+		s_prompt_color = CROSSLINE_COLOR_DEFAULT;
+	}
+    ~Crossline() {
+    }
 private:
 	char s_word_delimiter[64];
 	char s_history_buf[CROSS_HISTORY_MAX_LINE][CROSS_HISTORY_BUF_LEN];
@@ -300,17 +323,7 @@ private:
 	crossline_color_e s_prompt_color;
 
 public:
-    Crossline() {
-		strncpy(s_word_delimiter, CROSS_DFT_DELIMITER, 64);
-		s_history_id = 0; // Increase always, wrap until UINT_MAX
-		s_completion_callback = NULL;
-		s_paging_print_line = 0; // For paging control
-		s_got_resize 		= 0; // Window size changed
-		s_prompt_color = CROSSLINE_COLOR_DEFAULT;
-	}
-    ~Crossline() {}
-
-    // Main API to read a line, return buf if get line, return NULL if EOF.
+   // Main API to read a line, return buf if get line, return NULL if EOF.
     char* crossline_readline_internal (const char *prompt, char *buf, int size, int has_input) {
         int not_support = 0, len;
 
@@ -968,14 +981,11 @@ public:
 		return ch;
 	}
 
-	void crossline_winchg_event (int arg) {
-		s_got_resize = 1;
-	}
 	void crossline_winchg_reg (void) {
 		struct sigaction sa;
 		sigemptyset(&sa.sa_mask);
 		sa.sa_flags = 0;
-		sa.sa_handler = &crossline_winchg_event;
+		sa.sa_handler = signal_winchg_handler;
 		sigaction (SIGWINCH, &sa, NULL);
 		s_got_resize = 0;
 	}
@@ -1377,5 +1387,9 @@ public:
 	}
 
 }; // Crossline class.
+
+static void signal_winchg_handler (int arg) {
+    Crossline::Instance().WindowsChangeEvent();
+}
 
 #endif // CROSSLINE_HPP

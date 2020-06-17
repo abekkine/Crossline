@@ -21,7 +21,7 @@ gcc -Wall crossline.c example.c -o example
 #include <string.h>
 #include "Crossline.hpp"
 
-Crossline cline;
+#define CLINE Crossline::Instance()
 
 static void completion_hook (char const *buf, crossline_completions_t *pCompletion)
 {
@@ -30,7 +30,7 @@ static void completion_hook (char const *buf, crossline_completions_t *pCompleti
 
     for (i = 0; NULL != cmd[i]; ++i) {
         if (0 == strncmp(buf, cmd[i], strlen(buf))) {
-            cline.crossline_completion_add (pCompletion, cmd[i], NULL);
+            CLINE.crossline_completion_add (pCompletion, cmd[i], NULL);
         }
     }
 
@@ -40,13 +40,13 @@ int main ()
 {
     char buf[256];
     
-    cline.crossline_completion_register (completion_hook);
-    cline.crossline_history_load ("history.txt");
+    CLINE.crossline_completion_register (completion_hook);
+    CLINE.crossline_history_load ("history.txt");
 
-    while (NULL != cline.crossline_readline ("Crossline> ", buf, sizeof(buf))) {
+    while (NULL != CLINE.crossline_readline ("Crossline> ", buf, sizeof(buf))) {
         printf ("Read line: \"%s\"\n", buf);
     }    
 
-    cline.crossline_history_save ("history.txt");
+    CLINE.crossline_history_save ("history.txt");
     return 0;
 }

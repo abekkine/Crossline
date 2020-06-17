@@ -1,4 +1,5 @@
 .vscode/
+.*sw*
 *.exe
 *.o
 *.out
