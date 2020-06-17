@@ -1,6 +1,9 @@
 #ifndef CROSSLINE_HPP
 #define CROSSLINE_HPP
 
+#include <string>
+#include <vector>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -193,101 +196,6 @@ typedef struct crossline_completions_t {
 
 #define isdelim(ch)		(NULL != strchr(s_word_delimiter, ch))	// Check ch is word delimiter
 
-static char* s_crossline_help[] = {
-    " Misc Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | F1                      |  Show edit shortcuts help.                       |",
-    " | Ctrl-^                  |  Enter keyboard debugging mode.                  |",
-    " +-------------------------+--------------------------------------------------+",
-    " Move Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | Ctrl-B, Left            |  Move back a character.                          |",
-    " | Ctrl-F, Right           |  Move forward a character.                       |",
-    " | Up, ESC+Up              |  Move cursor to up line. (For multiple lines)    |",
-    " |   Ctrl-Up, Alt-Up       |  (Ctrl-Up, Alt-Up only supports Windows/Xterm)   |",
-    " | Down, ESC+Down          |  Move cursor to down line. (For multiple lines)  |",
-    " |   Ctrl-Down,Alt-Down    |  (Ctrl-Down, Alt-Down only support Windows/Xterm)|",
-    " | Alt-B, ESC+Left,        |  Move back a word.                               |",
-    " |   Ctrl-Left, Alt-Left   |  (Ctrl-Left, Alt-Left only support Windows/Xterm)|",
-    " | Alt-F, ESC+Right,       |  Move forward a word.                            |",
-    " |   Ctrl-Right, Alt-Right | (Ctrl-Right,Alt-Right only support Windows/Xterm)|",
-    " | Ctrl-A, Home            |  Move cursor to start of line.                   |",
-    " | Ctrl-E, End             |  Move cursor to end of line.                     |",
-    " | Ctrl-L                  |  Clear screen and redisplay line.                |",
-    " +-------------------------+--------------------------------------------------+",
-    " Edit Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | Ctrl-H, Backspace       |  Delete character before cursor.                 |",
-    " | Ctrl-D, DEL             |  Delete character under cursor.                  |",
-    " | Alt-U                   |  Uppercase current or following word.            |",
-    " | Alt-L                   |  Lowercase current or following word.            |",
-    " | Alt-C                   |  Capitalize current or following word.           |",
-    " | Alt-\\                  |  Delete whitespace around cursor.                |",
-    " | Ctrl-T                  |  Transpose character.                            |",
-    " +-------------------------+--------------------------------------------------+",
-    " Cut&Paste Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | Ctrl-K, ESC+End,        |  Cut from cursor to end of line.                 |",
-    " |   Ctrl-End, Alt-End     |  (Ctrl-End, Alt-End only support Windows/Xterm)  |",
-    " | Ctrl-U, ESC+Home,       |  Cut from start of line to cursor.               |",
-    " |   Ctrl-Home, Alt-Home   |  (Ctrl-Home, Alt-Home only support Windows/Xterm)|",
-    " | Ctrl-X                  |  Cut whole line.                                 |",
-    " | Alt-Backspace,          |  Cut word to left of cursor.                     |",
-    " |    Esc+Backspace,       |                                                  |",
-    " |    Clt-Backspace        |  (Clt-Backspace only supports Windows/Xterm)     |",
-    " | Alt-D, ESC+Del,         |  Cut word following cursor.                      |",
-    " |    Alt-Del, Ctrl-Del    |  (Alt-Del,Ctrl-Del only support Windows/Xterm)   |",
-    " | Ctrl-W                  |  Cut to left till whitespace (not word).         |",
-    " | Ctrl-Y, Ctrl-V, Insert  |  Paste last cut text.                            |",
-    " +-------------------------+--------------------------------------------------+",
-    " Complete Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | TAB, Ctrl-I             |  Autocomplete.                                   |",
-    " | Alt-=, Alt-?            |  List possible completions.                      |",
-    " +-------------------------+--------------------------------------------------+",
-    " History Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | Ctrl-P, Up              |  Fetch previous line in history.                 |",
-    " | Ctrl-N, Down            |  Fetch next line in history.                     |",
-    " | Alt-<,  PgUp            |  Move to first line in history.                  |",
-    " | Alt->,  PgDn            |  Move to end of input history.                   |",
-    " | Ctrl-R, Ctrl-S          |  Search history.                                 |",
-    " | F4                      |  Search history with current input.              |",
-    " | F1                      |  Show search help when in search mode.           |",
-    " | F2                      |  Show history.                                   |",
-    " | F3                      |  Clear history (need confirm).                   |",
-    " +-------------------------+--------------------------------------------------+",
-    " Control Commands",
-    " +-------------------------+--------------------------------------------------+",
-    " | Enter,  Ctrl-J, Ctrl-M  |  EOL and accept line.                            |",
-    " | Ctrl-C, Ctrl-G          |  EOF and abort line.                             |",
-    " | Ctrl-D                  |  EOF if line is empty.                           |",
-    " | Alt-R                   |  Revert line.                                    |",
-    " | Ctrl-Z                  |  Suspend Job. (Linux Only, fg will resume edit)  |",
-    " +-------------------------+--------------------------------------------------+",
-    " Note: If Alt-key doesn't work, an alternate way is to press ESC first then press key, see above ESC+Key.",
-    " Note: In multiple lines:",
-    "       Up/Down and Ctrl/Alt-Up, Ctrl/Alt-Down will move between lines.",
-    "       Up key will fetch history when cursor in first line or end of last line(for quick history move)",
-    "       Down key will fetch history when cursor in last line.",
-    "       Ctrl/Alt-Up, Ctrl/Alt-Down will just move between lines.",
-    NULL
-};
-
-static char* s_search_help[] = {
-    "Patterns are separated by ' ', patter match is case insensitive:",
-    "  (Hint: use Ctrl-Y/Ctrl-V/Insert to paste last paterns)",
-    "    select:   choose line including 'select'",
-    "    -select:  choose line excluding 'select'",
-    "    \"select from\":  choose line including \"select from\"",
-    "    -\"select from\": choose line excluding \"select from\"",
-    "Example:",
-    "    \"select from\" where -\"order by\" -limit:  ",
-    "         choose line including \"select from\" and 'where'",
-    "         and excluding \"order by\" or 'limit'",
-    NULL
-};
-
 // DEBUG static void crossline_winchg_event (int arg);
 static void signal_winchg_handler (int arg);
 
@@ -309,9 +217,109 @@ private:
 		s_paging_print_line = 0; // For paging control
 		s_got_resize 		= 0; // Window size changed
 		s_prompt_color = CROSSLINE_COLOR_DEFAULT;
+
+		Setup();
 	}
     ~Crossline() {
     }
+	void Setup() {
+		search_help_ = std::vector<std::string>({
+			"Patterns are separated by ' ', patter match is case insensitive:",
+			"  (Hint: use Ctrl-Y/Ctrl-V/Insert to paste last paterns)",
+			"    select:   choose line including 'select'",
+			"    -select:  choose line excluding 'select'",
+			"    \"select from\":  choose line including \"select from\"",
+			"    -\"select from\": choose line excluding \"select from\"",
+			"Example:",
+			"    \"select from\" where -\"order by\" -limit:  ",
+			"         choose line including \"select from\" and 'where'",
+			"         and excluding \"order by\" or 'limit'"
+		});
+		crossline_help_ = std::vector<std::string>({
+			" Misc Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | F1                      |  Show edit shortcuts help.                       |",
+			" | Ctrl-^                  |  Enter keyboard debugging mode.                  |",
+			" +-------------------------+--------------------------------------------------+",
+			" Move Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | Ctrl-B, Left            |  Move back a character.                          |",
+			" | Ctrl-F, Right           |  Move forward a character.                       |",
+			" | Up, ESC+Up              |  Move cursor to up line. (For multiple lines)    |",
+			" |   Ctrl-Up, Alt-Up       |  (Ctrl-Up, Alt-Up only supports Windows/Xterm)   |",
+			" | Down, ESC+Down          |  Move cursor to down line. (For multiple lines)  |",
+			" |   Ctrl-Down,Alt-Down    |  (Ctrl-Down, Alt-Down only support Windows/Xterm)|",
+			" | Alt-B, ESC+Left,        |  Move back a word.                               |",
+			" |   Ctrl-Left, Alt-Left   |  (Ctrl-Left, Alt-Left only support Windows/Xterm)|",
+			" | Alt-F, ESC+Right,       |  Move forward a word.                            |",
+			" |   Ctrl-Right, Alt-Right | (Ctrl-Right,Alt-Right only support Windows/Xterm)|",
+			" | Ctrl-A, Home            |  Move cursor to start of line.                   |",
+			" | Ctrl-E, End             |  Move cursor to end of line.                     |",
+			" | Ctrl-L                  |  Clear screen and redisplay line.                |",
+			" +-------------------------+--------------------------------------------------+",
+			" Edit Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | Ctrl-H, Backspace       |  Delete character before cursor.                 |",
+			" | Ctrl-D, DEL             |  Delete character under cursor.                  |",
+			" | Alt-U                   |  Uppercase current or following word.            |",
+			" | Alt-L                   |  Lowercase current or following word.            |",
+			" | Alt-C                   |  Capitalize current or following word.           |",
+			" | Alt-\\                  |  Delete whitespace around cursor.                |",
+			" | Ctrl-T                  |  Transpose character.                            |",
+			" +-------------------------+--------------------------------------------------+",
+			" Cut&Paste Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | Ctrl-K, ESC+End,        |  Cut from cursor to end of line.                 |",
+			" |   Ctrl-End, Alt-End     |  (Ctrl-End, Alt-End only support Windows/Xterm)  |",
+			" | Ctrl-U, ESC+Home,       |  Cut from start of line to cursor.               |",
+			" |   Ctrl-Home, Alt-Home   |  (Ctrl-Home, Alt-Home only support Windows/Xterm)|",
+			" | Ctrl-X                  |  Cut whole line.                                 |",
+			" | Alt-Backspace,          |  Cut word to left of cursor.                     |",
+			" |    Esc+Backspace,       |                                                  |",
+			" |    Clt-Backspace        |  (Clt-Backspace only supports Windows/Xterm)     |",
+			" | Alt-D, ESC+Del,         |  Cut word following cursor.                      |",
+			" |    Alt-Del, Ctrl-Del    |  (Alt-Del,Ctrl-Del only support Windows/Xterm)   |",
+			" | Ctrl-W                  |  Cut to left till whitespace (not word).         |",
+			" | Ctrl-Y, Ctrl-V, Insert  |  Paste last cut text.                            |",
+			" +-------------------------+--------------------------------------------------+",
+			" Complete Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | TAB, Ctrl-I             |  Autocomplete.                                   |",
+			" | Alt-=, Alt-?            |  List possible completions.                      |",
+			" +-------------------------+--------------------------------------------------+",
+			" History Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | Ctrl-P, Up              |  Fetch previous line in history.                 |",
+			" | Ctrl-N, Down            |  Fetch next line in history.                     |",
+			" | Alt-<,  PgUp            |  Move to first line in history.                  |",
+			" | Alt->,  PgDn            |  Move to end of input history.                   |",
+			" | Ctrl-R, Ctrl-S          |  Search history.                                 |",
+			" | F4                      |  Search history with current input.              |",
+			" | F1                      |  Show search help when in search mode.           |",
+			" | F2                      |  Show history.                                   |",
+			" | F3                      |  Clear history (need confirm).                   |",
+			" +-------------------------+--------------------------------------------------+",
+			" Control Commands",
+			" +-------------------------+--------------------------------------------------+",
+			" | Enter,  Ctrl-J, Ctrl-M  |  EOL and accept line.                            |",
+			" | Ctrl-C, Ctrl-G          |  EOF and abort line.                             |",
+			" | Ctrl-D                  |  EOF if line is empty.                           |",
+			" | Alt-R                   |  Revert line.                                    |",
+			" | Ctrl-Z                  |  Suspend Job. (Linux Only, fg will resume edit)  |",
+			" +-------------------------+--------------------------------------------------+",
+			" Note: If Alt-key doesn't work, an alternate way is to press ESC first then press key, see above ESC+Key.",
+			" Note: In multiple lines:",
+			"       Up/Down and Ctrl/Alt-Up, Ctrl/Alt-Down will move between lines.",
+			"       Up key will fetch history when cursor in first line or end of last line(for quick history move)",
+			"       Down key will fetch history when cursor in last line.",
+			"       Ctrl/Alt-Up, Ctrl/Alt-Down will just move between lines."	
+		});
+	}
+
+private:
+	std::vector<std::string> search_help_;
+	std::vector<std::string> crossline_help_;
+
 private:
 	char s_word_delimiter[64];
 	char s_history_buf[CROSS_HISTORY_MAX_LINE][CROSS_HISTORY_BUF_LEN];
@@ -454,14 +462,14 @@ public:
 	}
 
 	int CheckPaging (int line_len) {
-		char *paging_hints = "*** Press <Space> or <Enter> to continue . . .";
-		int	i, ch, rows, cols, len = (int)strlen(paging_hints);
+		std::string paging_hints = "*** Press <Space> or <Enter> to continue . . .";
+		int	i, ch, rows, cols, len = (int)paging_hints.size();
 
 		if (!isatty(STDIN_FILENO))	{ return 0; }
 		crossline_screen_get (&rows, &cols);
 		s_paging_print_line += (line_len + cols - 1) / cols;
 		if (s_paging_print_line >= (rows - 1)) {
-			printf ("%s", paging_hints);
+			printf ("%s", paging_hints.c_str());
 			ch = crossline_getch();
 			// clear paging hints
 			for (i = 0; i < len; ++i) { printf ("\b"); }
@@ -629,12 +637,12 @@ public:
 
 	void crossline_show_help (int show_search) {
 		int	i;
-		char **help = show_search ? s_search_help : s_crossline_help;
+		std::vector<std::string> & help = show_search ? search_help_ : crossline_help_;
 		ResetPaging ();
 		printf (" \b\n");
-		for (i = 0; NULL != help[i]; ++i) {
-			printf ("%s\n", help[i]);
-			if (CheckPaging ((int)strlen(help[i])+1))
+		for (i=0; i<help.size(); ++i) {
+			printf ("%s\n", help[i].c_str());
+			if (CheckPaging ((int)help[i].size()+1))
 				{ break; }
 		}
 	}
