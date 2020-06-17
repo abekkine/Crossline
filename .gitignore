@@ -1,6 +1,7 @@
 .vscode/
 .*sw*
 *.exe
+*.bin
 *.o
 *.out
 *.txt
