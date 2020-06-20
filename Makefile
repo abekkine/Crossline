@@ -1,11 +1,11 @@
 e1:
-	g++ -o e1.bin example.c
+	g++ -o e1.exe example.c
 
 e2:
-	g++ -o e2.bin example2.c
+	g++ -o e2.exe example2.c
 
 esql:
-	g++ -o esql.bin example_sql.c
+	g++ -o esql.exe example_sql.c
 
 clean:
-	$(RM) e1.bin e2.bin esql.bin
+	$(RM) e1.exe e2.exe esql.exe
