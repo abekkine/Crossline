@@ -1,11 +1,8 @@
 e1:
-	g++ -o e1.exe example.c
+	g++ -std=c++11 -Wfatal-errors -o e1.exe example.c
 
 e2:
-	g++ -o e2.exe example2.c
-
-esql:
-	g++ -o esql.exe example_sql.c
+	g++ -std=c++11 -o e2.exe example2.c
 
 clean:
-	$(RM) e1.exe e2.exe esql.exe
+	$(RM) e1.exe e2.exe

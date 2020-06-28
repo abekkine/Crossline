@@ -1,8 +1,10 @@
 #ifndef CROSSLINE_HPP
 #define CROSSLINE_HPP
 
+#include <iostream>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,8 +21,6 @@
 	#define STDIN_FILENO 			_fileno(stdin)
   #endif
 	#define isatty					_isatty
-	#define strcasecmp				_stricmp
-	#define strncasecmp				_strnicmp
 	static int s_crossline_win = 1;
 #else
 	#include <unistd.h>
@@ -38,11 +38,6 @@
     #define CROSS_HISTORY_MAX_LINE		256		// Maximum history line number
     #define CROSS_HISTORY_BUF_LEN		4096	// History line length
     #define CROSS_HIS_MATCH_PAT_NUM		16		// History search pattern number
-
-    #define CROSS_COMPLET_MAX_LINE		512		// Maximum completion word number
-    #define CROSS_COMPLET_WORD_LEN		64		// Completion word length
-    #define CROSS_COMPLET_HELP_LEN		256		// Completion word's help length
-    #define CROSS_COMPLET_HINT_LEN		128		// Completion syntax hints length
 
     // Make control-characters readable
     #define CTRL_KEY(key)				(key - 0x40)
@@ -180,21 +175,11 @@ typedef enum {
 	CROSSLINE_COLOR_DEFAULT         = CROSSLINE_FGCOLOR_DEFAULT | CROSSLINE_BGCOLOR_DEFAULT
 } crossline_color_e;
 
-typedef struct crossline_completions_t crossline_completions_t;
-typedef void (*crossline_completion_callback) (const char *buf, crossline_completions_t *pCompletions);
-
-// From Source .c
-typedef struct crossline_completions_t {
-	int		num;
-	char	word[CROSS_COMPLET_MAX_LINE][CROSS_COMPLET_WORD_LEN];
-	char	help[CROSS_COMPLET_MAX_LINE][CROSS_COMPLET_HELP_LEN];
-	char	hints[CROSS_COMPLET_HINT_LEN];
-	crossline_color_e	color_word[CROSS_COMPLET_MAX_LINE];
-	crossline_color_e	color_help[CROSS_COMPLET_MAX_LINE];
-	crossline_color_e	color_hints;
-} crossline_completions_t;
-
 #define isdelim(ch)		(NULL != strchr(s_word_delimiter, ch))	// Check ch is word delimiter
+
+typedef std::string CommandName;
+typedef std::string CommandParam;
+typedef std::function<int(CommandParam &)> CommandFunction;
 
 // DEBUG static void crossline_winchg_event (int arg);
 static void signal_winchg_handler (int arg);
@@ -209,11 +194,13 @@ public:
         // TODO : add mutex here?
         s_got_resize = 1;
     }
+	void AddCommand(const CommandName& command, CommandFunction func) {
+		// TODO : Not implemented yet.
+	}
 private:
     Crossline() {
 		strncpy(s_word_delimiter, CROSS_DFT_DELIMITER, 64);
 		s_history_id = 0; // Increase always, wrap until UINT_MAX
-		s_completion_callback = NULL;
 		s_paging_print_line = 0; // For paging control
 		s_got_resize 		= 0; // Window size changed
 		s_prompt_color = CROSSLINE_COLOR_DEFAULT;
@@ -325,7 +312,6 @@ private:
 	char s_history_buf[CROSS_HISTORY_MAX_LINE][CROSS_HISTORY_BUF_LEN];
 	uint32_t s_history_id; // Increase always, wrap until UINT_MAX
 	char s_clip_buf[CROSS_HISTORY_BUF_LEN]; // Buf to store cut text
-	crossline_completion_callback s_completion_callback;
 	int	s_paging_print_line;
 	int	s_got_resize;
 	crossline_color_e s_prompt_color;
@@ -340,10 +326,19 @@ public:
         if (!isatty(STDIN_FILENO)) {  // input is not from a terminal
             not_support = 1;
         } else {
-            char *term = getenv("TERM");
-            if (NULL != term) {
-                if (!strcasecmp(term, "dumb") || !strcasecmp(term, "cons25") ||  !strcasecmp(term, "emacs"))
-                    { not_support = 1; }
+			char * term = getenv("TERM");
+			std::string sTerm;
+			if (term == 0) {
+				sTerm = std::string();
+			} else {
+				sTerm = std::string(term);
+			}
+            if (sTerm != std::string()) {
+				if (sTerm != "dumb" ||
+					sTerm != "cons25" ||
+					sTerm != "emacs") {
+					not_support = 1;
+				}
             }
         }
         if (not_support) {
@@ -417,44 +412,6 @@ public:
 		}
 		fclose(file);
 		return 0;
-	}
-
-	// Register completion callback.
-	void RegisterCompletionHook (crossline_completion_callback pCbFunc) {
-		s_completion_callback = pCbFunc;
-	}
-
-	// Add completion in callback. Word is must, help for word is optional.
-	void  AddCompletionWithColor (
-		crossline_completions_t *pCompletions, const char *word,
-		crossline_color_e wcolor, const char *help, crossline_color_e hcolor) {
-		if ((NULL != pCompletions) && (NULL != word) && (pCompletions->num < CROSS_COMPLET_MAX_LINE)) {
-			strncpy (pCompletions->word[pCompletions->num], word, CROSS_COMPLET_WORD_LEN - 1);
-			pCompletions->word[pCompletions->num][CROSS_COMPLET_WORD_LEN - 1] = '\0';
-			pCompletions->color_word[pCompletions->num] = wcolor;
-			pCompletions->help[pCompletions->num][0] = '\0';
-			if (NULL != help) {
-				strncpy (pCompletions->help[pCompletions->num], help, CROSS_COMPLET_HELP_LEN - 1);
-				pCompletions->help[pCompletions->num][CROSS_COMPLET_HELP_LEN - 1] = '\0';
-				pCompletions->color_help[pCompletions->num] = hcolor;
-			}
-			pCompletions->num++;
-		}
-	}
-	void AddCompletion (crossline_completions_t *pCompletions, const char *word, const char *help) {
-		AddCompletionWithColor (pCompletions, word, CROSSLINE_COLOR_DEFAULT, help, CROSSLINE_COLOR_DEFAULT);
-	}
-
-	// Set syntax hints in callback.
-	void  SetHintColor (crossline_completions_t *pCompletions, const char *hints, crossline_color_e color) {
-		if ((NULL != pCompletions) && (NULL != hints)) {
-			strncpy (pCompletions->hints, hints, CROSS_COMPLET_HINT_LEN - 1);
-			pCompletions->hints[CROSS_COMPLET_HINT_LEN - 1] = '\0';
-			pCompletions->color_hints = color;
-		}
-	}
-	void crossline_hints_set (crossline_completions_t *pCompletions, const char *hints) {
-		SetHintColor (pCompletions, hints, CROSSLINE_COLOR_DEFAULT);
 	}
 
 	void ResetPaging (void) {
@@ -756,66 +713,6 @@ public:
 		return crossline_history_dump (stdout, 1, pattern, his_id, 0);
 	}
 
-	// Show completions returned by callback.
-	int crossline_show_completions (crossline_completions_t *pCompletions) {
-		int i, j, ret = 0, word_len = 0, with_help = 0, rows, cols, word_num;
-
-		ResetPaging ();
-		if (('\0' != pCompletions->hints[0]) || (pCompletions->num > 0)) {
-			printf (" \b\n");
-			ret = 1;
-		}
-		// Print syntax hints.
-		if ('\0' != pCompletions->hints[0]) {
-			printf ("Please input: "); 
-			SetColor (pCompletions->color_hints);
-			printf ("%s", pCompletions->hints); 
-			SetColor (CROSSLINE_COLOR_DEFAULT);
-			printf ("\n");
-		}
-		if (0 == pCompletions->num)	{ return ret; }
-		for (i = 0; i < pCompletions->num; ++i) {
-			if ((int)strlen(pCompletions->word[i]) > word_len)
-				{ word_len = (int)strlen(pCompletions->word[i]); }
-			if ('\0' != pCompletions->help[i][0])	{ with_help = 1; }
-		}
-		if (with_help) {
-			// Print words with help format.
-			for (i = 0; i < pCompletions->num; ++i) {
-				SetColor (pCompletions->color_word[i]);
-				printf ("%s", pCompletions->word[i]);
-				for (j = 0; j < 4+word_len-(int)strlen(pCompletions->word[i]); ++j)
-					{ printf (" "); }
-				SetColor (pCompletions->color_help[i]);
-				printf ("%s", pCompletions->help[i]);
-				SetColor (CROSSLINE_COLOR_DEFAULT);
-				printf ("\n");
-				if (CheckPaging((int)strlen(pCompletions->help[i])+4+word_len+1))
-					{ break; }
-			}
-			return ret;
-		}
-
-		// Print words list in multiple columns.
-		crossline_screen_get (&rows, &cols);
-		word_num = (cols - 1 - word_len) / (word_len + 4) + 1;
-		for (i = 1; i <= pCompletions->num; ++i) {
-			SetColor (pCompletions->color_word[i-1]);
-			printf ("%s", pCompletions->word[i-1]);
-			SetColor (CROSSLINE_COLOR_DEFAULT);
-			for (j = 0; j < ((i%word_num)?4:0)+word_len-(int)strlen(pCompletions->word[i-1]); ++j)
-				{ printf (" "); }
-			if (0 == (i % word_num)) {
-				printf ("\n");
-				if (CheckPaging (word_len))
-					{ return ret; }
-			}
-		}
-
-		if (pCompletions->num % word_num) { printf ("\n"); }
-		return ret;
-	}
-
 	int crossline_updown_move (const char *prompt, int *pCurPos, int *pCurNum, int off, int bForce) {
 		int rows, cols, len = (int)strlen(prompt), cur_pos=*pCurPos;
 		crossline_screen_get (&rows, &cols);
@@ -1000,15 +897,13 @@ public:
 
   #endif // #ifdef _WIN32
 
-	/* Internal readline from terminal. has_input indicates buf has inital input.
-	* in_his will disable history and complete shortcuts
-	*/
+	// Internal readline from terminal. has_input indicates buf has inital input.
+	// in_his will disable history and complete shortcuts
 	char* crossline_readline_edit (char *buf, int size, const char *prompt, int has_input, int in_his) {
 		int		pos = 0, num = 0, read_end = 0, is_esc;
 		int		ch, len, new_pos, copy_buf = 0, i, len2;
 		uint32_t history_id = s_history_id, search_his;
 		char	input[CROSS_HISTORY_BUF_LEN];
-		crossline_completions_t		completions;
 
 		prompt = (NULL != prompt) ? prompt : "";
 		if (has_input) {
@@ -1033,7 +928,7 @@ public:
 			}
 
 			switch (ch) {
-	/* Misc Commands */
+	// Misc Commands
 			case KEY_F1:	// Show help
 				crossline_show_help (in_his);
 				crossline_print (prompt, buf, &pos, &num, pos, num);
@@ -1046,7 +941,7 @@ public:
 				crossline_print (prompt, buf, &pos, &num, pos, num);
 				break;
 
-	/* Move Commands */
+	// Move Commands
 			case KEY_LEFT:	// Move back a character.
 			case CTRL_KEY('B'):
 				if (pos > 0)
@@ -1102,7 +997,7 @@ public:
 				crossline_updown_move (prompt, &pos, &num, 1, 1);
 				break;
 
-	/* Edit Commands */
+	// Edit Commands
 			case KEY_BACKSPACE: // Delete char to left of cursor (same with CTRL_KEY('H'))
 				if (pos > 0) {
 					memmove (&buf[pos-1], &buf[pos], num - pos);
@@ -1167,7 +1062,7 @@ public:
 				}
 				break;
 
-	/* Cut&Paste Commands */
+	// Cut&Paste Commands
 			case CTRL_KEY('K'): // Cut from cursor to end of line.
 			case KEY_CTRL_END:
 			case KEY_ALT_END:
@@ -1229,39 +1124,14 @@ public:
 				}
 				break;
 
-	/* Complete Commands */
+	// TODO : Complete Commands
 			case KEY_TAB:		// Autocomplete (same with CTRL_KEY('I'))
 			case ALT_KEY('='):	// List possible completions.
 			case ALT_KEY('?'):
-				if (in_his || (NULL == s_completion_callback) || (pos != num))
-					{ break; }
-				buf[pos] = '\0';
-				completions.num = 0;
-				completions.hints[0] = '\0';
-				s_completion_callback (buf, &completions);
-				if (completions.num >= 1) {
-					if (KEY_TAB == ch) {
-						len2 = len = (int)strlen(completions.word[0]);
-						// Find common string for autocompletion
-						for (i = 1; (i < completions.num) && (len > 0); ++i) {
-							while ((len > 0) && strncasecmp(completions.word[0], completions.word[i], len)) { len--; }
-						}
-						if (len > 0) {
-							while ((len2 > 0) && strncasecmp(completions.word[0], &buf[num-len2], len2)) { len2--; }
-							new_pos = num - len2;
-							if (new_pos+i+1 < size) {
-								for (i = 0; i < len; ++i) { buf[new_pos+i] = completions.word[0][i]; }
-								if (1 == completions.num) { buf[new_pos + (i++)] = ' '; }
-								crossline_refreash (prompt, buf, &pos, &num, new_pos+i, new_pos+i, 1);
-							}
-						}
-					}
-				}
-				if (((completions.num != 1) || (KEY_TAB != ch)) && crossline_show_completions(&completions))
-					{ crossline_print (prompt, buf, &pos, &num, pos, num); }
+				// TODO : Implement command completions later.
 				break;
 
-	/* History Commands */
+	// History Commands
 			case KEY_UP:		// Fetch previous line in history.
 				if (crossline_updown_move (prompt, &pos, &num, -1, 0)) { break; } // check multi line move up
 			case CTRL_KEY('P'):
@@ -1342,7 +1212,7 @@ public:
 				crossline_print (prompt, buf, &pos, &num, pos, num);
 				break;
 
-	/* Control Commands */
+	// Control Commands
 			case KEY_ENTER:		// Accept line (same with CTRL_KEY('M'))
 			case KEY_ENTER2:	// same with CTRL_KEY('J')
 				crossline_refreash (prompt, buf, &pos, &num, num, num, 0);

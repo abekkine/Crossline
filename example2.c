@@ -1,65 +1,23 @@
-/*
-
-Build
-
-# Windows MSVC
-cl -D_CRT_SECURE_NO_WARNINGS -W4 User32.Lib crossline.c example2.c /Feexample2.exe
-
-# Windows Clang
-clang -D_CRT_SECURE_NO_WARNINGS -Wall -lUser32 crossline.c example2.c -o example2.exe
-
-# Linux Clang
-clang -Wall crossline.c example2.c -o example2
-
-# GCC(Linux, MinGW, Cygwin, MSYS2)
-gcc -Wall crossline.c example2.c -o example2
-
-*/
+// Build
+//
+// # Windows MSVC
+// cl -D_CRT_SECURE_NO_WARNINGS -W4 User32.Lib crossline.c example2.c /Feexample2.exe
+//
+// # Windows Clang
+// clang -D_CRT_SECURE_NO_WARNINGS -Wall -lUser32 crossline.c example2.c -o example2.exe
+//
+// # Linux Clang
+// clang -Wall crossline.c example2.c -o example2
+//
+// # GCC(Linux, MinGW, Cygwin, MSYS2)
+// gcc -Wall crossline.c example2.c -o example2
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "Crossline.hpp"
 
-#ifdef _WIN32
-	#define strcasecmp				_stricmp
-	#define strncasecmp				_strnicmp
-#endif
-
 #define CLINE Crossline::Instance()
-
-static void completion_hook (char const *buf, crossline_completions_t *pCompletion)
-{
-	int i;
-	crossline_color_e wcolor, hcolor;
-	static const char *cmd[] = {"INSERT", "SELECT", "UPDATE", "DELETE", "CREATE", "DROP", "SHOW", "DESCRIBE", "help", "exit", "history", "paging", "color", NULL};
-	static const char* cmd_help[] = {
-		"Insert a record to table ",
-		"Select records from table",
-		"Update records in table  ",
-		"Delete records from table",
-		"Create index on table    ",
-		"Drop index or table      ",
-		"Show tables or databases ",
-		"Show table schema        ",
-		"Show help for topic      ",
-		"Exit shell               ",
-		"Show history             ",
-		"Do paing APIs test       ",
-		"Do Color APIs test       "};
-
-	for (i = 0; NULL != cmd[i]; ++i) {
-		if (0 == strncasecmp(buf, cmd[i], strlen(buf))) {
-			if (i < 8) { 
-				wcolor = (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_YELLOW);
-			} else { 
-				wcolor = (crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_CYAN); 
-			}
-			hcolor = i%2 ? CROSSLINE_FGCOLOR_WHITE : CROSSLINE_FGCOLOR_CYAN;
-			CLINE.AddCompletionWithColor (pCompletion, cmd[i], wcolor, cmd_help[i], hcolor);
-		}
-	}
-}
 
 static void pagint_test ()
 {
@@ -189,7 +147,6 @@ int main ()
 {
 	char buf[1024]="select ";
 
-	CLINE.RegisterCompletionHook (completion_hook);
 	CLINE.LoadHistory ("history.txt");
 	CLINE.PromptColor ((crossline_color_e) (CROSSLINE_FGCOLOR_BRIGHT | CROSSLINE_FGCOLOR_GREEN));
 

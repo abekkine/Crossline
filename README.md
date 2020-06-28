@@ -88,12 +88,11 @@ int Crossline::GetCursorPosition(int & row, int & col);
 void Crossline::SetCursorPosition(const int row, const int col);
 // void crossline_cursor_set (int row, int col);
 
-/* Move cursor with row and column offset, 
- *   row_off > 0 move up row_off lines, 
- *           < 0 move down abs(row_off) lines
- *           = 0 no move for row, 
- *   similar with col_off
- */
+// Move cursor with row and column offset, 
+//   row_off > 0 move up row_off lines, 
+//           < 0 move down abs(row_off) lines
+//           = 0 no move for row, 
+//   similar with col_off
 void Crossline::MoveCursor(const int row_offset, const int col_offset);
 // void crossline_cursor_move (int row_off, int col_off);
 
